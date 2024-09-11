@@ -18,7 +18,7 @@ const Match = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/matches/${id}/`)
+      .get(`${process.env.REACT_APP_API_URL}/matches/${id}/`)
       .then((response) => {
         setMatch(response.data)
       })

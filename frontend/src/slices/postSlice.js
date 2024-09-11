@@ -67,20 +67,20 @@ export const selectPostById = (state, postId) =>
   state.post.posts.find((post) => post.id === postId)
 
 export const fetchPosts = createAsyncThunk('post/fetchPosts', async (data) => {
-  const response = await axios.get('http://localhost:8000/posts/', {
+  const response = await axios.get(`${process.env.REACT_APP_API_URL}/posts/`, {
     params: data,
   })
   return response.data
 })
 
 export const deletePost = createAsyncThunk('post/deletePost', async (id) => {
-  await axios.delete(`http://localhost:8000/posts/${id}/`)
+  await axios.delete(`${process.env.REACT_APP_API_URL}/posts/${id}/`)
   return id
 })
 
 export const updatePost = createAsyncThunk('post/updatePost', async (data) => {
   const response = await axios.patch(
-    `http://localhost:8000/posts/${data.postId}/`,
+    `${process.env.REACT_APP_API_URL}/posts/${data.postId}/`,
     data.formData,
   )
 
@@ -91,7 +91,7 @@ export const addNewPost = createAsyncThunk(
   'post/addNewPost',
   async (initialPost) => {
     const response = await axios.post(
-      'http://localhost:8000/posts/',
+      `${process.env.REACT_APP_API_URL}/posts/`,
       initialPost,
     )
     return response.data

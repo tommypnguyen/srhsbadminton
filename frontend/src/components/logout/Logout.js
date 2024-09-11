@@ -9,7 +9,7 @@ const Logout = () => {
   const logout = async () => {
     try {
       await axios.post(
-        'http://localhost:8000/logout/',
+        `${process.env.REACT_APP_API_URL}/logout/`,
         {
           refresh_token: localStorage.getItem('refresh_token'),
         },

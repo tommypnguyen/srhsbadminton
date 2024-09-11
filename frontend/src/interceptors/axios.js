@@ -8,7 +8,7 @@ axios.interceptors.response.use(
     if (error.response.status === 401 && !refresh) {
       refresh = true
       const response = await axios.post(
-        'http://localhost:8000/token/refresh',
+        `${process.env.REACT_APP_API_URL}/token/refresh`,
         {
           refresh: localStorage.getItem('refresh_token'),
         },

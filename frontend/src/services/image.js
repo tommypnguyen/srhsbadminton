@@ -23,7 +23,10 @@ export const uploadImage = async (image, title, description = '') => {
 
 export const addGalleryImage = async (data) => {
   try {
-    const res = await axios.post('http://localhost:8000/images/', data)
+    const res = await axios.post(
+      `${process.env.REACT_APP_API_URL}/images/`,
+      data,
+    )
     return res.data
   } catch (err) {
     console.error(err)
@@ -33,7 +36,7 @@ export const addGalleryImage = async (data) => {
 export const getGalleryImages = async (data = {}) => {
   try {
     const res = await axios.get(
-      'http://localhost:8000/images/?category=gallery',
+      `${process.env.REACT_APP_API_URL}/images/?category=gallery`,
       { params: data },
     )
     return res.data

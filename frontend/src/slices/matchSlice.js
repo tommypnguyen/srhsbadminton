@@ -100,9 +100,12 @@ export const selectMatchById = (state, matchId) =>
 export const fetchMatches = createAsyncThunk(
   'match/fetchMatches',
   async (data) => {
-    const response = await axios.get('http://localhost:8000/matches/', {
-      params: data,
-    })
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_URL}/matches/`,
+      {
+        params: data,
+      },
+    )
     return response.data
   },
 )
@@ -110,9 +113,12 @@ export const fetchMatches = createAsyncThunk(
 export const fetchRecord = createAsyncThunk(
   'match/fetchRecord',
   async (data) => {
-    const response = await axios.get('http://localhost:8000/schools/1/', {
-      params: data,
-    })
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_URL}/schools/1/`,
+      {
+        params: data,
+      },
+    )
 
     return response.data
   },
@@ -122,7 +128,7 @@ export const updateMatch = createAsyncThunk(
   'match/updateMatch',
   async (data) => {
     const response = await axios.put(
-      `http://localhost:8000/matches/${data.matchId}/`,
+      `${process.env.REACT_APP_API_URL}/matches/${data.matchId}/`,
       data.updatedMatch,
     )
 
@@ -131,7 +137,7 @@ export const updateMatch = createAsyncThunk(
 )
 
 export const deleteMatch = createAsyncThunk('match/deleteMatch', async (id) => {
-  await axios.delete(`http://localhost:8000/matches/${id}/`)
+  await axios.delete(`${process.env.REACT_APP_API_URL}/matches/${id}/`)
   return id
 })
 
@@ -139,7 +145,7 @@ export const addNewMatch = createAsyncThunk(
   'match/addNewMatch',
   async (initialMatch) => {
     const response = await axios.post(
-      'http://localhost:8000/matches/',
+      `${process.env.REACT_APP_API_URL}/matches/`,
       initialMatch,
     )
 
@@ -151,7 +157,7 @@ export const addNewGame = createAsyncThunk(
   'match/addNewGame',
   async (initialGame) => {
     const response = await axios.post(
-      'http://localhost:8000/games/',
+      `${process.env.REACT_APP_API_URL}/games/`,
       initialGame,
     )
     return response.data

@@ -21,10 +21,14 @@ const Login = () => {
     }
 
     try {
-      const { data } = await axios.post('http://localhost:8000/token/', user, {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      })
+      const { data } = await axios.post(
+        `${process.env.REACT_APP_API_URL}/token/`,
+        user,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        },
+      )
 
       localStorage.clear()
       localStorage.setItem('access_token', data.access)
