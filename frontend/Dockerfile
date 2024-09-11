@@ -1,4 +1,4 @@
-FROM node:18 as build
+FROM node:18
 
 WORKDIR /app/frontend/
 
@@ -9,18 +9,4 @@ COPY . /app/frontend/
 
 RUN npm run build
 
-FROM nginx:alpine
-
-WORKDIR /usr/local/bin
-
-COPY --from=build /app/frontend/build /usr/share/nginx/html
-
-COPY generate-config.sh .
-
-COPY custom-nginx.template /etc/nginx/conf.d/
-
-RUN chmod +x generate-config.sh
-
-EXPOSE 80
-
-ENTRYPOINT ["/bin/sh", "generate-config.sh"]
+CMD ["npm", "start"]
