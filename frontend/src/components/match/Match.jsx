@@ -30,7 +30,7 @@ const Match = () => {
       })
   }, [id])
   if (Object.keys(match).length === 0) {
-    return <div>No Match</div>
+    return <div>Loading...</div>
   }
 
   const onDeleteClick = async () => {

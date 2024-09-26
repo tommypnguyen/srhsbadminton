@@ -92,9 +92,6 @@ const UploadPost = () => {
     handleUploadFiles(files)
   }
 
-  if (!user) {
-    navigate('/login')
-  }
   return (
     <form className='p-4' method='dialog'>
       <div className='space-y-12'>
