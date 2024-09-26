@@ -1,5 +1,7 @@
 import { useContext, useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import AuthContext from '../../contexts/AuthContext'
 import { addNewSchool } from '../../slices/schoolSlice'
@@ -8,7 +10,7 @@ const AddSchoolForm = () => {
   const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [abbr, setAbbr] = useState('')
-  const { isAuthenticated } = useContext(AuthContext)
+  const { authTokens } = useContext(AuthContext)
 
   const onSubmit = async (e) => {
     e.preventDefault()
@@ -17,12 +19,32 @@ const AddSchoolForm = () => {
         name,
         abbreviation: abbr,
       }
-      await dispatch(addNewSchool(newSchool)).unwrap()
+      await dispatch(
+        addNewSchool({
+          initialSchool: newSchool,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + String(authTokens.access),
+          },
+        }),
+      ).unwrap()
       document.getElementById('add_school_form').close()
       setName('')
       setAbbr('')
     } catch (err) {
-      console.error('Failed to add school', err)
+      toast.error(
+        'Failed to add school. Please make sure you are logged in or all fields are filled.',
+        {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        },
+      )
     }
   }
 
@@ -30,9 +52,6 @@ const AddSchoolForm = () => {
     document.getElementById('add_school_form').close()
   }
 
-  if (!isAuthenticated) {
-    return <div>Not Authorized</div>
-  }
   return (
     <div className='p-4'>
       <div className='space-y-12'>
@@ -94,6 +113,7 @@ const AddSchoolForm = () => {
           Save
         </button>
       </div>
+      <ToastContainer />
     </div>
   )
 }

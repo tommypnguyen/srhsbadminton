@@ -52,14 +52,17 @@ export const fetchSchools = createAsyncThunk(
 
 export const addNewSchool = createAsyncThunk(
   'school/addNewSchool',
-  async (initialSchool) => {
+  async (data, { rejectWithValue }) => {
     const response = await axios.post(
       `${process.env.REACT_APP_API_URL}/schools/`,
-      initialSchool,
+      data.initialSchool,
+      { headers: data.headers },
     )
-    if (response.status !== 201) {
-      throw Error('Unable to add new school')
+    console.log(response)
+    if (response.status === 201) {
+      return response.data
+    } else if (response.statusText === 'Unauthorized') {
+      throw rejectWithValue(response.data)
     }
-    return response.data
   },
 )
