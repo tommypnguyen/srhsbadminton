@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
 import { addGame } from '../../../services/game'
-import { useNavigate } from 'react-router-dom'
 import Autocomplete from '../../common/Autocomplete'
 import AuthContext from '../../../contexts/AuthContext'
 import { getPlayersByFilter } from '../../../services/player'
@@ -8,8 +7,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
-  const navigate = useNavigate()
-  const { user, authTokens } = useContext(AuthContext)
+  const { authTokens } = useContext(AuthContext)
   const [discipline, setDiscipline] = useState("Men's Singles")
   const [rank, setRank] = useState(1)
   const [homePlayers, setHomePlayers] = useState({
@@ -162,9 +160,6 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
     getAsyncPlayers()
   }, [opponentId])
 
-  if (!user) {
-    navigate('/login')
-  }
   return (
     <form className='w-full max-w-lg'>
       <div className='flex flex-wrap -mx-3 mb-2'>

@@ -12,7 +12,7 @@ const MAX_COUNT = 10
 
 const UploadPost = () => {
   const dispatch = useDispatch()
-  const { user, authTokens } = useContext(AuthContext)
+  const { authTokens } = useContext(AuthContext)
 
   const [title, setTitle] = useState('')
   const [images, setImages] = useState([])

@@ -12,7 +12,7 @@ const EditGameForm = ({ game }) => {
     game.results[0].player_one.school.name === 'Santa Rosa High School' ? 0 : 1
   const away = home === 0 ? 1 : 0
   const navigate = useNavigate()
-  const { user, authTokens } = useContext(AuthContext)
+  const { authTokens } = useContext(AuthContext)
   const [discipline, setDiscipline] = useState(game.discipline)
   const [rank, setRank] = useState(game.rank)
   const [homePlayers, setHomePlayers] = useState({
@@ -151,10 +151,6 @@ const EditGameForm = ({ game }) => {
     }
     getAsyncPlayers()
   }, [opponentId])
-
-  if (!user) {
-    navigate('/login')
-  }
 
   return (
     <form className='w-full max-w-lg'>
