@@ -26,7 +26,7 @@ export const matchSlice = createSlice({
       })
       .addCase(fetchMatches.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.matches = action.payload
+        state.matches = action.payload.results
       })
       .addCase(fetchMatches.rejected, (state, action) => {
         state.status = 'failed'
@@ -126,40 +126,63 @@ export const fetchRecord = createAsyncThunk(
 
 export const updateMatch = createAsyncThunk(
   'match/updateMatch',
-  async (data) => {
+  async (data, { rejectWithValue }) => {
     const response = await axios.put(
-      `${process.env.REACT_APP_API_URL}/matches/${data.matchId}/`,
-      data.updatedMatch,
+      `${process.env.REACT_APP_API_URL}/matches/${data.id}/`,
+      data.formData,
+      { headers: data.headers },
     )
-
-    return response.data
+    if (response.status === 200) {
+      return response.data
+    } else if (response.statusText === 'Unauthorized') {
+      throw rejectWithValue(response.data)
+    }
   },
 )
 
-export const deleteMatch = createAsyncThunk('match/deleteMatch', async (id) => {
-  await axios.delete(`${process.env.REACT_APP_API_URL}/matches/${id}/`)
-  return id
-})
+export const deleteMatch = createAsyncThunk(
+  'match/deleteMatch',
+  async (data, { rejectWithValue }) => {
+    const response = await axios.delete(
+      `${process.env.REACT_APP_API_URL}/matches/${data.id}/`,
+      { headers: data.headers },
+    )
+    if (response.status === 204) {
+      return data.id
+    } else if (response.statusText === 'Unauthorized') {
+      throw rejectWithValue(response.data)
+    }
+  },
+)
 
 export const addNewMatch = createAsyncThunk(
   'match/addNewMatch',
-  async (initialMatch) => {
+  async (data, { rejectWithValue }) => {
     const response = await axios.post(
       `${process.env.REACT_APP_API_URL}/matches/`,
-      initialMatch,
+      data.formData,
+      { headers: data.headers },
     )
-
-    return response.data
+    if (response.status === 201) {
+      return response.data
+    } else if (response.statusText === 'Unauthorized') {
+      throw rejectWithValue(response.data)
+    }
   },
 )
 
 export const addNewGame = createAsyncThunk(
   'match/addNewGame',
-  async (initialGame) => {
+  async (data, { rejectWithValue }) => {
     const response = await axios.post(
       `${process.env.REACT_APP_API_URL}/games/`,
-      initialGame,
+      data.initialGame,
+      data.headers,
     )
-    return response.data
+    if (response.status === 200) {
+      return response.data.results
+    } else if (response.statusText === 'Unauthorized') {
+      return rejectWithValue(response.data)
+    }
   },
 )

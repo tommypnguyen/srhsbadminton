@@ -11,7 +11,7 @@ import AuthContext from '../../contexts/AuthContext'
 const Post = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { isAuthenticated } = useContext(AuthContext)
+  const { user, authTokens } = useContext(AuthContext)
 
   const { id } = useParams()
   const [post, setPost] = useState({})
@@ -36,15 +36,25 @@ const Post = () => {
   }
 
   const onDeleteClick = async () => {
-    dispatch(deletePost(id))
-    navigate('/announcements/')
+    if (confirm(`Are you sure you want to delete this match?`) === true) {
+      await dispatch(
+        deletePost({
+          id,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + String(authTokens.access),
+          },
+        }),
+      )
+      navigate('/announcements/')
+    }
   }
 
   const date = formatDate(post.date)
   return (
     <div className='p-4 mx-auto'>
       <main>
-        {isAuthenticated ?? (
+        {user && (
           <div className='flex justify-end'>
             <div
               className='btn btn-primary btn-sm mt-2 mr-2'
@@ -82,7 +92,7 @@ const Post = () => {
 
         <dialog id='edit_post_modal' className='modal'>
           <div className='modal-box'>
-            <EditPostForm post={post} />
+            <EditPostForm post={post} id={id} />
           </div>
           <form method='dialog' className='modal-backdrop'>
             <button>close</button>

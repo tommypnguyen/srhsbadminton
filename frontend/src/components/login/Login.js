@@ -1,47 +1,14 @@
-import axios from 'axios'
 import { useContext, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import AuthContext from '../../contexts/AuthContext'
 
 const Login = () => {
-  const navigate = useNavigate()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const { setIsAuthenticated } = useContext(AuthContext)
+  const { loginUser } = useContext(AuthContext)
 
-  const [error, setError] = useState(false)
+  const [error] = useState(false)
 
-  const submit = async (e) => {
-    e.preventDefault()
-
-    const user = {
-      username,
-      password,
-    }
-
-    try {
-      const { data } = await axios.post(
-        `${process.env.REACT_APP_API_URL}/token/`,
-        user,
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true,
-        },
-      )
-
-      localStorage.clear()
-      localStorage.setItem('access_token', data.access)
-      localStorage.setItem('refresh_token', data.refresh)
-      axios.defaults.headers.common['Authorization'] =
-        `Bearer ${data['access']}`
-      setError(false)
-      setIsAuthenticated(true)
-      navigate('/')
-    } catch (error) {
-      setError(true)
-    }
-  }
   return (
     <section className='bg-gray-50'>
       <div className='flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0'>
@@ -72,7 +39,7 @@ const Login = () => {
         >
           Panther Badminton
         </a>
-        <form className='space-y-4 md:space-y-6' onSubmit={submit}>
+        <form className='space-y-4 md:space-y-6' onSubmit={loginUser}>
           <div>
             <label className='input input-bordered flex items-center gap-2'>
               <svg

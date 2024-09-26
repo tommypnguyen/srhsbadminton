@@ -9,6 +9,8 @@ class Image(models.Model):
     url = models.TextField()
     title = models.TextField(null=True, blank=True)
     category = models.CharField(choices=ImageType.choices, default=ImageType.POST)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return self.title or self.url

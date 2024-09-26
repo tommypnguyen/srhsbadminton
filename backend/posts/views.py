@@ -12,39 +12,33 @@ from posts.services import cloudinary
 
 
 class ImageViewSet(viewsets.ModelViewSet):
-    queryset = Image.objects.all()
+    queryset = Image.objects.all().order_by("-created_at")
     serializer_class = ImageSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ImageFilter
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def create(self, request):
-        files = request.FILES.getlist("files")
-        if not files:
+        file = self.request.data.get("file")
+        if not file:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        if len(files) > 10:
-            return Response(
-                {"error": "Unable to upload more than 10 images at a time."},
-                status.HTTP_400_BAD_REQUEST,
-            )
         images = []
-        for file in files:
-            try:
-                url, public_id = cloudinary.upload_image(file=file)
-                image = Image(
-                    url=url,
-                    title=public_id,
-                    category=Image.ImageType.GALLERY,
-                )
-                images.append(image)
-            except Exception as e:
-                print(e)
-                return Response(
-                    {
-                        "error": "Error trying to upload image",
-                    },
-                    status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+        try:
+            url, public_id = cloudinary.upload_image(file=file)
+            image = Image(
+                url=url,
+                title=public_id,
+                category=Image.ImageType.GALLERY,
+            )
+            images.append(image)
+        except Exception as e:
+            print(e)
+            return Response(
+                {
+                    "error": "Error trying to upload image",
+                },
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         Image.objects.bulk_create(images)
         return Response(status=status.HTTP_201_CREATED)
 
@@ -66,6 +60,9 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return self.queryset.order_by("-date")
 
     def perform_create(self, serializer):
         files = self.request.data.getlist("files")
@@ -96,7 +93,6 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer.save(images=images)
 
     def perform_update(self, serializer):
-        print(self.request.data)
         files = self.request.data.getlist("files")
         if len(files) > 5:
             return Response(

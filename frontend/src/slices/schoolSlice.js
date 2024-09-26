@@ -21,6 +21,13 @@ export const schoolSlice = createSlice({
         state.status = 'failed'
         state.error = action.error.message
       })
+      .addCase(addNewSchool.fulfilled, (state, action) => {
+        let newSchools = state.schools.map((school) =>
+          school.id !== action.payload.id ? school : action.payload,
+        )
+        state.schools = newSchools
+        state.status = 'idle'
+      })
   },
 })
 
@@ -40,5 +47,19 @@ export const fetchSchools = createAsyncThunk(
       `${process.env.REACT_APP_API_URL}/schools/`,
     )
     return response.data.results
+  },
+)
+
+export const addNewSchool = createAsyncThunk(
+  'school/addNewSchool',
+  async (initialSchool) => {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_URL}/schools/`,
+      initialSchool,
+    )
+    if (response.status !== 201) {
+      throw Error('Unable to add new school')
+    }
+    return response.data
   },
 )

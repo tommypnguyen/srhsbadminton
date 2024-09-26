@@ -25,7 +25,8 @@ export const addGalleryImage = async (data) => {
   try {
     const res = await axios.post(
       `${process.env.REACT_APP_API_URL}/images/`,
-      data,
+      data.formData,
+      { headers: data.headers },
     )
     return res.data
   } catch (err) {
@@ -38,6 +39,18 @@ export const getGalleryImages = async (data = {}) => {
     const res = await axios.get(
       `${process.env.REACT_APP_API_URL}/images/?category=gallery`,
       { params: data },
+    )
+    return res.data
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const deleteGalleryImage = async (data) => {
+  try {
+    const res = await axios.delete(
+      `${process.env.REACT_APP_API_URL}/images/${data.id}/`,
+      { headers: data.headers },
     )
     return res.data
   } catch (err) {

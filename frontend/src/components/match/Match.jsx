@@ -11,10 +11,13 @@ import AuthContext from '../../contexts/AuthContext'
 const Match = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { isAuthenticated } = useContext(AuthContext)
+  const { user, authTokens } = useContext(AuthContext)
   const { id } = useParams()
   const [match, setMatch] = useState({})
-  // const [editMatch, setEditMatch] = useState(false)
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' }
+    return new Date(dateString).toLocaleDateString(undefined, options)
+  }
 
   useEffect(() => {
     axios
@@ -31,8 +34,18 @@ const Match = () => {
   }
 
   const onDeleteClick = async () => {
-    dispatch(deleteMatch(id))
-    navigate('/matches/')
+    if (confirm(`Are you sure you want to delete this match?`) === true) {
+      dispatch(
+        deleteMatch({
+          id,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + String(authTokens.access),
+          },
+        }),
+      )
+      navigate('/matches/')
+    }
   }
 
   return (
@@ -42,9 +55,7 @@ const Match = () => {
           <dt className='sr-only'>Date</dt>
         </dl>
         <dd className=' text-slate-700'>
-          <time dateTime='2024-03-19T18:00:00.000Z'>
-            Tuesday, March 19, 2024
-          </time>
+          <time>{formatDate(match.date)}</time>
         </dd>
       </div>
       <h1 className='text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl pt-5'>
@@ -53,7 +64,7 @@ const Match = () => {
       <p className='text-md font-medium text-slate-600'>
         Score: {match.teams[0].score} - {match.teams[1].score}{' '}
       </p>
-      {isAuthenticated && (
+      {user && (
         <div
           className='btn bg-green-400 btn-sm mt-2'
           onClick={() => document.getElementById('my_modal').showModal()}
@@ -70,7 +81,7 @@ const Match = () => {
           Add Game
         </div>
       )}
-      {isAuthenticated && (
+      {user && (
         <div
           className='btn btn-primary btn-sm mt-2 ml-2'
           onClick={() =>
@@ -88,8 +99,11 @@ const Match = () => {
           Edit Match
         </div>
       )}
-      {isAuthenticated && (
-        <div className='btn btn-error btn-sm mt-2 ml-2' onClick={onDeleteClick}>
+      {user && (
+        <div
+          className='btn btn-error btn-sm mt-2 md:ml-2'
+          onClick={onDeleteClick}
+        >
           <svg
             xmlns='http://www.w3.org/2000/svg'
             width='16'
@@ -135,14 +149,16 @@ const Match = () => {
         </svg>
         SRHS Players
       </span>
-
-      {/* <div>
-        <p>Scoresheet</p>
-        <img src='https://i.imgur.com/VbvEwAx.png' alt='Scoresheet image' />
-      </div> */}
+      {match.games.length === 0 && <div>No games found</div>}
       {match.games.map((game) => (
-        <Game key={game.id} game={game} editMatch={isAuthenticated} />
+        <Game key={game.id} game={game} editMatch={user} />
       ))}
+      <div className='divider divider-neutral'></div>
+      {match.scoresheet && (
+        <div>
+          <img src={match.scoresheet.url} alt='Scoresheet' />
+        </div>
+      )}
     </div>
   )
 }

@@ -4,19 +4,12 @@ import UploadImageForm from './UploadImageForm'
 import { getGalleryImages } from '../../services/image'
 import AuthContext from '../../contexts/AuthContext'
 import PaginationFooter from '../match/common/PaginationFooter'
+import Image from './Image'
 
 const ImageColumn = ({ images }) => {
   return (
     <div className='grid gap-4'>
-      {images &&
-        images.map((image) => (
-          <img
-            className='h-auto max-w-full rounded-lg'
-            src={image.url}
-            alt={image.title ? image.title : 'Gallery image'}
-            key={image.id}
-          />
-        ))}
+      {images && images.map((image) => <Image image={image} key={image.id} />)}
     </div>
   )
 }
@@ -27,7 +20,7 @@ const Gallery = () => {
   const [next, setNext] = useState('')
   const [searchParams] = useSearchParams()
   const { search } = useLocation()
-  const { isAuthenticated } = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
 
   useEffect(() => {
     const getImages = async () => {
@@ -47,7 +40,7 @@ const Gallery = () => {
 
   return (
     <>
-      {isAuthenticated && (
+      {user && (
         <div className='flex justify-items-center'>
           <div
             className='btn bg-accent/95 m-4 btn-sm text-white'

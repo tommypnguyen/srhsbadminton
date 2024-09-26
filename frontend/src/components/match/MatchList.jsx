@@ -20,7 +20,7 @@ import PaginationFooter from './common/PaginationFooter'
 
 const MatchList = () => {
   const dispatch = useDispatch()
-  const { isAuthenticated } = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
   const [searchParams, setSearchParams] = useSearchParams()
   const matches = useSelector(selectAllMatches)
   const record = useSelector(selectRecord)
@@ -103,7 +103,7 @@ const MatchList = () => {
   if (matchStatus === 'loading') {
     content = <div className='skeleton h-32 w-full'></div>
   } else if (matchStatus === 'succeeded') {
-    if (matches.results.length === 0) {
+    if (matches.length === 0) {
       content = (
         <Error
           message={"Couldn't find any related matches!"}
@@ -111,7 +111,7 @@ const MatchList = () => {
         />
       )
     } else {
-      content = matches.results.map((match) => (
+      content = matches.map((match) => (
         <MatchListItem match={match} key={match.id} />
       ))
     }
@@ -124,7 +124,7 @@ const MatchList = () => {
         <h1 className='font-bold leading-9 tracking-tight text-5xl sm:leading-10 md:leading-14'>
           Matches
         </h1>
-        {isAuthenticated && (
+        {user && (
           <div>
             <Link
               className='btn bg-accent/95 btn-sm text-white'

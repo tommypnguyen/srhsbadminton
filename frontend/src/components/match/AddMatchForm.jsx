@@ -1,6 +1,8 @@
 import { useContext, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import { addNewMatch } from '../../slices/matchSlice'
 import OpponentSelect from './common/OpponentSelect'
@@ -9,46 +11,57 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { selectSchoolByName } from '../../slices/schoolSlice'
 import UploadImage from '../common/UploadImage'
-import { uploadImage } from '../../services/image'
 import AuthContext from '../../contexts/AuthContext'
+import AddSchoolForm from '../school/AddSchoolForm'
 
 const AddMatchForm = () => {
   const dispatch = useDispatch()
-  const { isAuthenticated } = useContext(AuthContext)
+  const { user, authTokens } = useContext(AuthContext)
 
   const [opponent, setOpponent] = useState('')
   const [homeWin, setHomeWin] = useState(false)
   const [date, setDate] = useState(new Date())
   const [score, setScore] = useState({ home: 0, away: 0 })
   const [scoresheet, setScoresheet] = useState('')
-  const [addRequestStatus, setAddRequestStatus] = useState('idle')
   const navigate = useNavigate()
   const srhs = useSelector((state) =>
     selectSchoolByName(state, 'Santa Rosa High School'),
   )
-  const canSave = [opponent].every(Boolean) && addRequestStatus === 'idle'
+  const canSave = [opponent].every(Boolean)
+  const dialog = document.getElementById('add_school_form')
+
+  function closeDialog(event) {
+    // If the target dialog is
+    if (!event.target.contains(dialog)) return
+    dialog.close()
+  }
+
+  document.addEventListener('click', closeDialog)
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    if (canSave) {
+    if (!canSave) {
+      toast.error(
+        'Failed to add match. Please make sure you are logged in or all fields are filled.',
+        {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        },
+      )
+    } else {
       try {
-        setAddRequestStatus('pending')
-        let scoresheetPayload
-        if (scoresheet) {
-          const image = await uploadImage(
-            scoresheet,
-            `${srhs.abbreviation}_vs_opponent_id_${opponent}_${date.toLocaleDateString('en-CA')}_scoresheet`,
-          )
-          scoresheetPayload = {
-            url: image.data.link,
-            title: image.data.title,
-            category: 'post',
-          }
-        }
-        const newMatch = {
-          date: date.toLocaleDateString('en-CA'),
-          scoresheet: scoresheetPayload,
-          teams: [
+        const formData = new FormData()
+        formData.append('scoresheet', scoresheet)
+        formData.append('date', date.toLocaleDateString('en-CA'))
+        formData.append(
+          'teams',
+          JSON.stringify([
             {
               school_id: srhs.id,
               winner: homeWin,
@@ -59,25 +72,41 @@ const AddMatchForm = () => {
               winner: !homeWin,
               score: score.away,
             },
-          ],
-        }
-        if (scoresheetPayload) {
-          newMatch['scoresheet'] = scoresheetPayload
-        }
-        await dispatch(addNewMatch(newMatch)).unwrap()
+          ]),
+        )
+
+        await dispatch(
+          addNewMatch({
+            formData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: 'Bearer ' + String(authTokens.access),
+            },
+          }),
+        ).unwrap()
         navigate('/matches')
       } catch (err) {
-        console.error('Failed to add the match: ', err)
-      } finally {
-        setAddRequestStatus('idle')
+        toast.error(
+          'Failed to add match. Please make sure you are logged in or all fields are filled.',
+          {
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+          },
+        )
       }
     }
   }
-  if (!isAuthenticated) {
-    return <div className='p-4 space-y-12'>Not authorized</div>
+  if (!user) {
+    navigate('/login')
   }
   return (
-    <form className='p-4'>
+    <form className='p-4' encType='multipart/form-data'>
       <div className='space-y-12'>
         <div className='border-b border-gray-900/10 pb-12'>
           <h2 className='text-base font-semibold leading-7 text-gray-900'>
@@ -120,9 +149,29 @@ const AddMatchForm = () => {
                   value={opponent}
                   description={'Select opponent'}
                   onChange={(e) => setOpponent(e.target.value)}
-                  required={true}
                 />
+                <div
+                  className='btn btn-primary btn-xs mt-2 md:ml-2'
+                  onClick={() =>
+                    document.getElementById('add_school_form').showModal()
+                  }
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='16'
+                    height='16'
+                    viewBox='0 0 16 16'
+                  >
+                    <path d='M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4' />
+                  </svg>
+                  Add School
+                </div>
               </div>
+              <dialog id='add_school_form' className='modal'>
+                <div className='modal-box'>
+                  <AddSchoolForm />
+                </div>
+              </dialog>
             </div>
 
             <div className='col-span-full'>
@@ -212,6 +261,7 @@ const AddMatchForm = () => {
       <div className='mt-6 flex items-center justify-end gap-x-6'>
         <button
           type='button'
+          onClick={() => navigate('/matches')}
           className='text-md font-semibold leading-6 text-gray-900'
         >
           Go Back
@@ -224,6 +274,7 @@ const AddMatchForm = () => {
           Save
         </button>
       </div>
+      <ToastContainer />
     </form>
   )
 }

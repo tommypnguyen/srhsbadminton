@@ -36,7 +36,7 @@ const PostList = ({ show }) => {
   if (postStatus === 'loading') {
     content = <div className='skeleton h-32 w-full bg-accent/95'></div>
   } else if (postStatus === 'succeeded') {
-    content = posts.results.map((post) => {
+    content = posts.map((post) => {
       return (
         <div key={post.id}>
           <Link to={`/posts/${post.id}`} key={post.id}>

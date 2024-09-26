@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import { updateMatch } from '../../slices/matchSlice'
 import OpponentSelect from './common/OpponentSelect'
@@ -8,11 +10,12 @@ import DatePicker from 'react-datepicker'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import { selectSchoolByName } from '../../slices/schoolSlice'
-import { uploadImage } from '../../services/image'
+import AuthContext from '../../contexts/AuthContext'
 import UploadImage from '../common/UploadImage'
 
 const EditMatchForm = ({ match }) => {
   const dispatch = useDispatch()
+  const { authTokens } = useContext(AuthContext)
   const home = match.teams[0].school.name === 'Santa Rosa High School' ? 0 : 1
   const away = home === 0 ? 1 : 0
   const [opponent, setOpponent] = useState(match.teams[away].school.id)
@@ -32,26 +35,21 @@ const EditMatchForm = ({ match }) => {
   )
   const canSave = [opponent].every(Boolean) && editRequestStatus === 'idle'
 
+  const onBackClick = () => {
+    document.getElementById('edit_match_modal').close()
+  }
+
   const onSubmit = async (e) => {
     e.preventDefault()
     if (canSave) {
       try {
         setEditRequestStatus('pending')
-        let scoresheetPayload
-        if (scoresheet) {
-          const image = await uploadImage(
-            scoresheet,
-            `${match.teams[home].school.abbreviation}_vs_opponent_id_${opponent}_${date.toLocaleDateString('en-CA')}_scoresheet`,
-          )
-          scoresheetPayload = {
-            url: image.data.link,
-            title: image.data.title,
-            category: 'post',
-          }
-        }
-        const updatedMatch = {
-          date: date.toLocaleDateString('en-CA'),
-          teams: [
+        const formData = new FormData()
+        scoresheet instanceof File && formData.append('scoresheet', scoresheet)
+        formData.append('date', date.toLocaleDateString('en-CA'))
+        formData.append(
+          'teams',
+          JSON.stringify([
             {
               school_id: srhs.id,
               winner: homeWin,
@@ -62,17 +60,35 @@ const EditMatchForm = ({ match }) => {
               winner: !homeWin,
               score: score.away,
             },
-          ],
-        }
-        if (scoresheetPayload) {
-          updatedMatch['scoresheet'] = scoresheetPayload
-        }
+          ]),
+        )
+
         await dispatch(
-          updateMatch({ updatedMatch, matchId: match.id }),
+          updateMatch({
+            id: match.id,
+            formData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: 'Bearer ' + String(authTokens.access),
+            },
+          }),
         ).unwrap()
-        navigate('/matches')
+        onBackClick()
+        navigate(0)
       } catch (err) {
-        console.error('Failed to add the match: ', err)
+        toast.error(
+          'Failed to edit match. Please make sure you are logged in or all fields are filled.',
+          {
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+          },
+        )
       } finally {
         setEditRequestStatus('idle')
       }
@@ -106,24 +122,7 @@ const EditMatchForm = ({ match }) => {
                   description={'Select opponent'}
                   onChange={(e) => setOpponent(e.target.value)}
                   required={true}
-                />
-              </div>
-            </div>
-
-            <div className='col-span-full'>
-              <label
-                htmlFor='date'
-                className='block text-sm font-medium leading-6 text-gray-900'
-              >
-                Date
-              </label>
-              <div className='mt-2 flex items-center gap-x-3'>
-                <DatePicker
-                  id='date'
-                  showIcon
-                  className='border'
-                  selected={date}
-                  onChange={(date) => setDate(date)}
+                  disabled={true}
                 />
               </div>
             </div>
@@ -202,6 +201,23 @@ const EditMatchForm = ({ match }) => {
                 />
               </div>
             </div>
+            <div className='col-span-full'>
+              <label
+                htmlFor='date'
+                className='block text-sm font-medium leading-6 text-gray-900'
+              >
+                Date
+              </label>
+              <div className='mt-2 flex items-center gap-x-3'>
+                <DatePicker
+                  id='date'
+                  showIcon
+                  className='border'
+                  selected={date}
+                  onChange={(date) => setDate(date)}
+                />
+              </div>
+            </div>
 
             <div className='col-span-full'>
               <UploadImage
@@ -218,6 +234,7 @@ const EditMatchForm = ({ match }) => {
         <button
           type='button'
           className='text-md font-semibold leading-6 text-gray-900'
+          onClick={onBackClick}
         >
           Go Back
         </button>
@@ -229,6 +246,7 @@ const EditMatchForm = ({ match }) => {
           Save
         </button>
       </div>
+      <ToastContainer />
     </form>
   )
 }

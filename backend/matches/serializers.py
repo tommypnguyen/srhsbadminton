@@ -159,70 +159,16 @@ class MatchSerializer(serializers.ModelSerializer):
         model = Match
         fields = ("id", "date", "scoresheet", "teams", "games")
 
-    def create(self, validated_data):
-        scoresheet = validated_data.pop("scoresheet", None)
-        if scoresheet:
-            url = scoresheet["url"]
-            image = Image.objects.filter(url=url).first()
-            if not image:
-                image = Image.objects.create(
-                    url=url, title=scoresheet["title"], category=scoresheet["category"]
-                )
-            else:
-                image.title = scoresheet["title"]
-                image.save()
-            scoresheet = image
 
-        teams = validated_data.pop("team_set")
-        instance = Match.objects.create(**validated_data, scoresheet=scoresheet)
-        for team in teams:
-            Team.objects.create(
-                school=team["school"],
-                winner=team["winner"],
-                score=team["score"],
-                match=instance,
-            )
+class MatchCreateSerializer(serializers.ModelSerializer):
+    scoresheet = serializers.FileField(required=False)
+    teams = TeamSerializer(source="team_set", many=True, required=False)
+    games = MatchGameSerializer(many=True, required=False)
+    date = serializers.DateField(required=False)
 
-        return instance
-
-    def update(self, instance, validated_data):
-        instance.date = validated_data.get("date", instance.date)
-        scoresheet = validated_data.pop("scoresheet", None)
-        if scoresheet:
-            url = scoresheet["url"]
-            image = Image.objects.filter(url=url).first()
-            if not image:
-                image = Image.objects.create(
-                    url=url, title=scoresheet["title"], category=scoresheet["category"]
-                )
-            else:
-                image.title = scoresheet["title"]
-                image.save()
-            instance.scoresheet = image
-        teams = validated_data.pop("team_set")
-        new_teams = []
-        for team in teams:
-            t = Team.objects.filter(match=instance, school=team["school"]).first()
-            if not t:
-                # Delete old relationship with previous school if exists
-                Team.objects.filter(match=instance).exclude(
-                    school__name="Santa Rosa High School"
-                ).first().delete()
-
-                t = Team.objects.create(
-                    school=team["school"],
-                    winner=team["winner"],
-                    score=team["score"],
-                    match=instance,
-                )
-            else:
-                for k, v in team.items():
-                    setattr(t, k, v)
-                t.save()
-            new_teams.append(t)
-        instance.team_set.set(new_teams)
-        instance.save()
-        return instance
+    class Meta:
+        model = Match
+        fields = ("id", "date", "scoresheet", "teams", "games")
 
 
 class SchoolDetailSerializer(serializers.ModelSerializer):

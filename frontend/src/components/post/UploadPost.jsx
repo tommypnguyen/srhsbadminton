@@ -1,16 +1,18 @@
 import { useContext, useState } from 'react'
 import MarkdownEditor, { commands } from '@uiw/react-md-editor'
 import { useDispatch } from 'react-redux'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import { Link, useNavigate } from 'react-router-dom'
 
 import { addNewPost } from '../../slices/postSlice'
 import AuthContext from '../../contexts/AuthContext'
-const MAX_COUNT = 5
+const MAX_COUNT = 10
 
 const UploadPost = () => {
   const dispatch = useDispatch()
-  const { isAuthenticated } = useContext(AuthContext)
+  const { user, authTokens } = useContext(AuthContext)
 
   const [title, setTitle] = useState('')
   const [images, setImages] = useState([])
@@ -29,10 +31,27 @@ const UploadPost = () => {
         formData.append('files', images[i])
       }
 
-      await dispatch(addNewPost(formData)).unwrap()
+      await dispatch(
+        addNewPost({
+          formData,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: 'Bearer ' + String(authTokens.access),
+          },
+        }),
+      ).unwrap()
       navigate('/announcements')
     } catch (err) {
-      console.error('Failed to add the post', err)
+      toast.error(`Failed to add the post.`, {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
     }
   }
 
@@ -50,7 +69,16 @@ const UploadPost = () => {
       }
       if (uploaded.length === MAX_COUNT) setFileLimit(true)
       if (uploaded.length > MAX_COUNT) {
-        console.log(`You can only add a maximum of ${MAX_COUNT} files`)
+        toast.error(`You can only add a maximum of ${MAX_COUNT} files`, {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        })
         setFileLimit(false)
         limitExceeded = true
         return true
@@ -64,8 +92,8 @@ const UploadPost = () => {
     handleUploadFiles(files)
   }
 
-  if (!isAuthenticated) {
-    return <div className='p-4 space-y-12'>Not authorized</div>
+  if (!user) {
+    navigate('/login')
   }
   return (
     <form className='p-4' method='dialog'>
@@ -193,6 +221,7 @@ const UploadPost = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </form>
   )
 }

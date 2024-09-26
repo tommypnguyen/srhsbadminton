@@ -21,16 +21,15 @@ export const postSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.posts = action.payload
+        state.posts = action.payload.results
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = 'failed'
         state.error = action.error.message
       })
       .addCase(addNewPost.fulfilled, (state, action) => {
-        let newPosts = state.posts.map((post) =>
-          post.id !== action.payload.id ? post : action.payload,
-        )
+        state.posts.push(action.payload)
+        let newPosts = [...state.posts]
         newPosts.sort((a, b) => {
           return new Date(b.date) - new Date(a.date)
         })
@@ -73,27 +72,51 @@ export const fetchPosts = createAsyncThunk('post/fetchPosts', async (data) => {
   return response.data
 })
 
-export const deletePost = createAsyncThunk('post/deletePost', async (id) => {
-  await axios.delete(`${process.env.REACT_APP_API_URL}/posts/${id}/`)
-  return id
-})
+export const deletePost = createAsyncThunk(
+  'post/deletePost',
+  async (data, { rejectWithValue }) => {
+    const { id, headers } = data
+    const response = await axios.delete(
+      `${process.env.REACT_APP_API_URL}/posts/${id}/`,
+      { headers: headers },
+    )
+    if (response.status === 204) {
+      return id
+    } else if (response.statusText === 'Unauthorized') {
+      throw rejectWithValue(response.data)
+    }
+  },
+)
 
-export const updatePost = createAsyncThunk('post/updatePost', async (data) => {
-  const response = await axios.patch(
-    `${process.env.REACT_APP_API_URL}/posts/${data.postId}/`,
-    data.formData,
-  )
-
-  return response.data
-})
+export const updatePost = createAsyncThunk(
+  'post/updatePost',
+  async (data, { rejectWithValue }) => {
+    const { postId, formData, headers } = data
+    const response = await axios.put(
+      `${process.env.REACT_APP_API_URL}/posts/${postId}/`,
+      formData,
+      { headers: headers },
+    )
+    if (response.status === 200) {
+      return response.data
+    } else if (response.statusText === 'Unauthorized') {
+      throw rejectWithValue(response.data)
+    }
+  },
+)
 
 export const addNewPost = createAsyncThunk(
   'post/addNewPost',
-  async (initialPost) => {
+  async (data, { rejectWithValue }) => {
     const response = await axios.post(
       `${process.env.REACT_APP_API_URL}/posts/`,
-      initialPost,
+      data.formData,
+      { headers: data.headers },
     )
-    return response.data
+    if (response.status === 201) {
+      return response.data
+    } else if (response.statusText === 'Unauthorized') {
+      throw rejectWithValue(response.data)
+    }
   },
 )

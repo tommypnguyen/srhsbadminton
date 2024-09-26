@@ -1,15 +1,19 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import MarkdownEditor, { commands } from '@uiw/react-md-editor'
 
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import 'react-datepicker/dist/react-datepicker.css'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import { updatePost } from '../../slices/postSlice'
-const MAX_COUNT = 5
+import AuthContext from '../../contexts/AuthContext'
+const MAX_COUNT = 10
 
-const EditPostForm = ({ post }) => {
+const EditPostForm = ({ post, id }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { authTokens } = useContext(AuthContext)
   const [title, setTitle] = useState(post.title)
   const [body, setBody] = useState(post.body)
   const [fileLimit, setFileLimit] = useState(false)
@@ -34,7 +38,16 @@ const EditPostForm = ({ post }) => {
       }
       if (uploaded.length === MAX_COUNT) setFileLimit(true)
       if (uploaded.length > MAX_COUNT) {
-        console.log(`You can only add a maximum of ${MAX_COUNT} files`)
+        toast.error(`You can only add a maximum of ${MAX_COUNT} files`, {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        })
         setFileLimit(false)
         limitExceeded = true
         return true
@@ -57,10 +70,23 @@ const EditPostForm = ({ post }) => {
       for (let i = 0; i < images.length; i++) {
         formData.append('files', images[i])
       }
-      await dispatch(updatePost({ formData, postId: post.id })).unwrap()
-      navigate(`/announcements`)
+      const headers = {
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + String(authTokens.access),
+      }
+      await dispatch(updatePost({ formData, postId: id, headers })).unwrap()
+      navigate(0)
     } catch (err) {
-      console.error('Failed to add post: ', err)
+      toast.error(`Failed to edit the post`, {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
     }
   }
   return (
@@ -189,6 +215,7 @@ const EditPostForm = ({ post }) => {
           Save
         </button>
       </div>
+      <ToastContainer />
     </form>
   )
 }

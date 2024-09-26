@@ -1,3 +1,5 @@
+import json
+
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -7,16 +9,19 @@ from rest_framework.decorators import action
 from rest_framework import status
 
 
-from matches.models import Game, Match, Player, School
+from matches.models import Game, Match, Player, School, Team
 from matches.filters import MatchFilter, PlayerFilter
 from matches.serializers import (
     GameSerializer,
     MatchSerializer,
+    MatchCreateSerializer,
     PlayerSerializer,
     PlayerListSerializer,
     SchoolSerializer,
     SchoolDetailSerializer,
 )
+from posts.models import Image
+from posts.services import cloudinary
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
@@ -89,8 +94,76 @@ class MatchViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = MatchFilter
 
+    def get_serializer_class(self):
+        if self.action in ("create", "update"):
+            return MatchCreateSerializer
+        return super().get_serializer_class()
+
     def get_queryset(self):
         return self.queryset.prefetch_related("teams", "games").order_by("-date")
+
+    def perform_create(self, serializer):
+        print(self.request.data)
+        image = self.request.data.get("scoresheet")
+        date = self.request.data.get("date")
+        teams = json.loads(self.request.data.get("teams"))
+        try:
+            url, public_id = cloudinary.upload_image(file=image)
+            image = Image.objects.create(
+                url=url,
+                title=public_id,
+                category=Image.ImageType.POST,
+            )
+
+            instance = serializer.save(scoresheet=image, date=date)
+            for team in teams:
+                t = Team.objects.create(
+                    school=School.objects.get(pk=team["school_id"]),
+                    winner=team["winner"],
+                    score=team["score"],
+                    match=instance,
+                )
+
+        except Exception as e:
+            print(e)
+            return Response(
+                {
+                    "error": "Error trying to upload image into database",
+                },
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+    def perform_update(self, serializer):
+        print(self.request.data)
+        image = self.request.data.get("scoresheet")
+        date = self.request.data.get("date")
+        teams = json.loads(self.request.data.get("teams"))
+        if image:
+            try:
+                url, public_id = cloudinary.upload_image(file=image)
+                image = Image.objects.create(
+                url=url,
+                title=public_id,
+                category=Image.ImageType.POST,
+                )
+                instance = serializer.save(scoresheet=image, date=date)
+            except Exception as e:
+                print(e)
+                return Response(
+                    {
+                        "error": "Error trying to upload image into database",
+                    },
+                    status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+        else:
+            instance = serializer.save(date=date)
+        Team.objects.filter(match=instance).delete()
+        for team in teams:
+            t = Team.objects.create(
+                school=School.objects.get(pk=team["school_id"]),
+                winner=team["winner"],
+                score=team["score"],
+                match=instance,
+            )  
 
     @action(detail=False, methods=["get"])
     def years(self, request):

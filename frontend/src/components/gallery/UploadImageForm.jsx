@@ -1,20 +1,44 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import AuthContext from '../../contexts/AuthContext'
 import UploadImage from '../common/UploadImage'
-import { addGalleryImage, uploadImage } from '../../services/image'
+import { addGalleryImage } from '../../services/image'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const UploadImageForm = () => {
-  const [image, setImage] = useState(null)
-  const [title, setTitle] = useState('')
+  const navigate = useNavigate()
+  const { authTokens } = useContext(AuthContext)
+  const [image, setImage] = useState('')
 
-  const onSubmit = async () => {
-    const res = await uploadImage(image, title)
-    const data = res.data
-    const imagePayload = {
-      url: data.link,
-      title: data.title,
-      category: 'gallery',
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const formData = new FormData()
+      formData.append('file', image)
+      await addGalleryImage({
+        formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: 'Bearer ' + String(authTokens.access),
+        },
+      })
+      navigate(0)
+    } catch (err) {
+      toast.error(
+        'Failed to add image. Please make sure you are logged in or try again.',
+        {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        },
+      )
     }
-    await addGalleryImage(imagePayload)
   }
 
   return (
@@ -27,26 +51,9 @@ const UploadImageForm = () => {
           <p className='mt-1 text-sm leading-6 text-gray-600'>
             Upload an Image to the gallery
           </p>
-          <div className='pt-2'>
-            <label
-              className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'
-              htmlFor='image-title'
-            >
-              Title
-            </label>
-            <input
-              className='appearance-none block w-full text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-              id='image-title'
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
+
           <div className='col-span-full'>
-            <UploadImage
-              label={'Gallery Image'}
-              image={image}
-              setImage={setImage}
-            />
+            <UploadImage image={image} setImage={setImage} />
           </div>
         </div>
       </div>
@@ -60,6 +67,7 @@ const UploadImageForm = () => {
           Save
         </button>
       </div>
+      <ToastContainer />
     </form>
   )
 }

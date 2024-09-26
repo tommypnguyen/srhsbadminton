@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import Autocomplete from '../../common/Autocomplete'
+import AuthContext from '../../../contexts/AuthContext'
 import { getPlayersByFilter } from '../../../services/player'
 import { editGame } from '../../../services/game'
 
@@ -9,6 +12,7 @@ const EditGameForm = ({ game }) => {
     game.results[0].player_one.school.name === 'Santa Rosa High School' ? 0 : 1
   const away = home === 0 ? 1 : 0
   const navigate = useNavigate()
+  const { user, authTokens } = useContext(AuthContext)
   const [discipline, setDiscipline] = useState(game.discipline)
   const [rank, setRank] = useState(game.rank)
   const [homePlayers, setHomePlayers] = useState({
@@ -103,10 +107,27 @@ const EditGameForm = ({ game }) => {
           results: [homeResult, awayResult],
           match_id: game.match_id,
         }
-        await editGame(game.id, editedGame)
+        await editGame(game.id, editedGame, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + String(authTokens.access),
+          },
+        })
         navigate(0)
       } catch (err) {
-        console.error('Failed to edit the game: ', err)
+        toast.error(
+          'Failed to edit the game. Please make sure you are logged in or all fields are filled.',
+          {
+            position: 'top-right',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+          },
+        )
       } finally {
         setAddRequestStatus('idle')
       }
@@ -130,6 +151,10 @@ const EditGameForm = ({ game }) => {
     }
     getAsyncPlayers()
   }, [opponentId])
+
+  if (!user) {
+    navigate('/login')
+  }
 
   return (
     <form className='w-full max-w-lg'>
@@ -460,6 +485,7 @@ const EditGameForm = ({ game }) => {
           Update
         </button>
       </div>
+      <ToastContainer />
     </form>
   )
 }

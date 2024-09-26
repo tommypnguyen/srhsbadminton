@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { register } from 'swiper/element/bundle'
-import AuthContext from './contexts/AuthContext'
+import { AuthProvider } from './contexts/AuthContext'
 import Navbar from './components/layout/Navbar'
 import Home from './components/pages/Home'
 import MatchList from './components/match/MatchList'
@@ -15,23 +15,14 @@ import UploadPost from './components/post/UploadPost'
 import Player from './components/player/Player'
 import Login from './components/login/Login'
 import Logout from './components/logout/Logout'
-import { useState } from 'react'
 
 register()
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    window.localStorage.getItem('access_token') !== null,
-  )
   return (
     <Router>
       <div>
-        <AuthContext.Provider
-          value={{
-            isAuthenticated,
-            setIsAuthenticated,
-          }}
-        >
+        <AuthProvider>
           <Navbar />
           <Routes>
             <Route exact path='/' element={<Home />} />
@@ -51,7 +42,7 @@ function App() {
             <Route path='/logout' element={<Logout />} />
           </Routes>
           <Footer />
-        </AuthContext.Provider>
+        </AuthProvider>
       </div>
     </Router>
   )

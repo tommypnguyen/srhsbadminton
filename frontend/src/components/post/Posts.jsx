@@ -4,14 +4,15 @@ import PostList from './PostList'
 import AuthContext from '../../contexts/AuthContext'
 
 const Posts = () => {
-  const { isAuthenticated } = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
+
   return (
     <div className='divide-y divide-gray-200 dark:divide-gray-700 p-4'>
       <div className='space-y-2 pt-6'>
         <h1 className='font-bold leading-9 tracking-tight text-5xl sm:leading-10 md:leading-14'>
           Announcements
         </h1>
-        {isAuthenticated && (
+        {user && (
           <div className='py-2'>
             <Link
               className='btn bg-accent/95 btn-sm text-white'
