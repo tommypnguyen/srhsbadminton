@@ -30,6 +30,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = PlayerFilter
+    pagination_class = None
 
     def get_serializer_class(self):
         if self.action == "retrieve":

@@ -16,7 +16,7 @@ import AddSchoolForm from '../school/AddSchoolForm'
 
 const AddMatchForm = () => {
   const dispatch = useDispatch()
-  const { user, authTokens } = useContext(AuthContext)
+  const { authTokens } = useContext(AuthContext)
 
   const [opponent, setOpponent] = useState('')
   const [homeWin, setHomeWin] = useState(false)
@@ -102,9 +102,7 @@ const AddMatchForm = () => {
       }
     }
   }
-  if (!user) {
-    navigate('/login')
-  }
+
   return (
     <form className='p-4' encType='multipart/form-data'>
       <div className='space-y-12'>
