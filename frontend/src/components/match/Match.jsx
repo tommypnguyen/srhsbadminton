@@ -205,7 +205,7 @@ const Match = () => {
         <div>
           <div className='divider divider-neutral'></div>
           <div
-            className='btn btn-primary btn-sm mt-2 md:ml-2'
+            className='btn btn-primary btn-sm mb-2'
             onClick={() => setHideScoresheet(!hideScoresheet)}
           >
             {hideScoresheet === false ? 'Hide Scoresheet' : 'Show Scoresheet'}
