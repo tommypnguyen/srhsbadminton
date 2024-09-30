@@ -3,10 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { useContext, useState, useEffect } from 'react'
 import axios from 'axios'
+import Error from '../layout/Error'
 import AddGameForm from './game/AddGameForm'
 import { deleteMatch } from '../../slices/matchSlice'
 import EditMatchForm from './EditMatchForm'
 import AuthContext from '../../contexts/AuthContext'
+import Select from '../layout/Select'
 
 const Match = () => {
   const dispatch = useDispatch()
@@ -14,9 +16,55 @@ const Match = () => {
   const { user, authTokens } = useContext(AuthContext)
   const { id } = useParams()
   const [match, setMatch] = useState({})
+  const [games, setGames] = useState([])
+  const [category, setCategory] = useState('MS')
+  const [filteredGames, setFilteredGames] = useState([])
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' }
     return new Date(dateString).toLocaleDateString(undefined, options)
+  }
+  const categories = [
+    {
+      value: "Men's Singles",
+      content: 'MS',
+    },
+    {
+      value: "Women's Singles",
+      content: 'WS',
+    },
+    {
+      value: "Men's Doubles",
+      content: 'MD',
+    },
+    {
+      value: "Women's Doubles",
+      content: 'WD',
+    },
+    {
+      value: 'Mixed Doubles',
+      content: 'MX',
+    },
+  ]
+
+  const compareGames = (a, b) => {
+    if (a.rank > b.rank) {
+      return -1
+    }
+    if (a.rank < b.rank) {
+      return 1
+    }
+    return 0
+  }
+
+  const filterGames = (category) => {
+    const categoryGames = games.filter((game) => game.discipline === category)
+    categoryGames.sort(compareGames)
+    setFilteredGames(categoryGames)
+  }
+
+  const onCategoryChange = (e) => {
+    setCategory(e.target.value)
+    filterGames(e.target.value)
   }
 
   useEffect(() => {
@@ -24,11 +72,15 @@ const Match = () => {
       .get(`${process.env.REACT_APP_API_URL}/matches/${id}/`)
       .then((response) => {
         setMatch(response.data)
+        setGames(response.data.games.sort(compareGames))
+        setFilteredGames(response.data.games.sort(compareGames))
       })
       .catch((error) => {
         console.error(error)
       })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
+
   if (Object.keys(match).length === 0) {
     return <div>Loading...</div>
   }
@@ -136,29 +188,44 @@ const Match = () => {
           <button>close</button>
         </form>
       </dialog>
-      <div className='divider divider-neutral'></div>
-      <span className='flex flex-row justify-end font-medium'>
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          width='24'
-          height='24'
-          className='fill-accent/75'
-          viewBox='0 0 20 20'
-        >
-          <path d='M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2z' />
-        </svg>
-        SRHS Players
-      </span>
-      {match.games.length === 0 && <div>No games found</div>}
-      {match.games.map((game) => (
-        <Game key={game.id} game={game} editMatch={user} />
-      ))}
-      <div className='divider divider-neutral'></div>
       {match.scoresheet && (
         <div>
+          <div className='divider divider-neutral'></div>
           <img src={match.scoresheet.url} alt='Scoresheet' />
         </div>
       )}
+
+      <div className='divider divider-neutral'></div>
+      {match.games.length !== 0 && (
+        <div className='flex pb-4'>
+          <Select
+            htmlFor={'category'}
+            onChange={onCategoryChange}
+            description={'Filter by category'}
+            value={category}
+            options={categories}
+          />
+          {/* <span className='flex flex-row justify-end font-medium'>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='24'
+              height='24'
+              className='fill-accent/75'
+              viewBox='0 0 20 20'
+            >
+              <path d='M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2z' />
+            </svg>
+            SRHS Players
+          </span> */}
+        </div>
+      )}
+      {filteredGames.length === 0 && (
+        <Error message={"Couldn't find any games!"} statusCode={404} />
+      )}
+
+      {filteredGames.map((game) => (
+        <Game key={game.id} game={game} editMatch={user} />
+      ))}
     </div>
   )
 }
