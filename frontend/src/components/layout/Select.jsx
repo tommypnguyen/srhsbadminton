@@ -4,6 +4,7 @@ const Select = ({
   options,
   onChange,
   value,
+  showDefault = true,
   required = false,
 }) => {
   return (
@@ -15,7 +16,7 @@ const Select = ({
         onChange={onChange}
         required={required}
       >
-        <option value={''}>{description}</option>
+        {showDefault && <option value={''}>{description}</option>}
         {options.map((option) => {
           return (
             <option value={option.value} key={option.value}>

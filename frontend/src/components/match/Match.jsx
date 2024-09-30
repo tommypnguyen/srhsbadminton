@@ -227,6 +227,7 @@ const Match = () => {
             description={'Filter by category'}
             value={category}
             options={categories}
+            showDefault={false}
           />
           {/* <span className='flex flex-row justify-end font-medium'>
             <svg
