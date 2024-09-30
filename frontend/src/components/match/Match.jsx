@@ -9,6 +9,7 @@ import { deleteMatch } from '../../slices/matchSlice'
 import EditMatchForm from './EditMatchForm'
 import AuthContext from '../../contexts/AuthContext'
 import Select from '../layout/Select'
+import Record from './Record'
 
 const Match = () => {
   const dispatch = useDispatch()
@@ -19,6 +20,7 @@ const Match = () => {
   const [games, setGames] = useState([])
   const [category, setCategory] = useState('MS')
   const [filteredGames, setFilteredGames] = useState([])
+  const [hideScoresheet, setHideScoresheet] = useState(false)
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' }
     return new Date(dateString).toLocaleDateString(undefined, options)
@@ -57,9 +59,15 @@ const Match = () => {
   }
 
   const filterGames = (category) => {
-    const categoryGames = games.filter((game) => game.discipline === category)
-    categoryGames.sort(compareGames)
-    setFilteredGames(categoryGames)
+    if (category === '') {
+      const categoryGames = games
+      categoryGames.sort(compareGames)
+      setFilteredGames(categoryGames)
+    } else {
+      const categoryGames = games.filter((game) => game.discipline === category)
+      categoryGames.sort(compareGames)
+      setFilteredGames(categoryGames)
+    }
   }
 
   const onCategoryChange = (e) => {
@@ -113,9 +121,14 @@ const Match = () => {
       <h1 className='text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl pt-5'>
         {match.teams[0].school.name} vs. {match.teams[1].school.name}
       </h1>
-      <p className='text-md font-medium text-slate-600'>
-        Score: {match.teams[0].score} - {match.teams[1].score}{' '}
-      </p>
+      <div className='pt-2'>
+        <Record
+          totalMatches={match.teams[0].score + match.teams[1].score}
+          wins={match.teams[0].score}
+          losses={match.teams[1].score}
+        />
+      </div>
+
       {user && (
         <div
           className='btn bg-green-400 btn-sm mt-2'
@@ -191,7 +204,17 @@ const Match = () => {
       {match.scoresheet && (
         <div>
           <div className='divider divider-neutral'></div>
-          <img src={match.scoresheet.url} alt='Scoresheet' />
+          <div
+            className='btn btn-primary btn-sm mt-2 md:ml-2'
+            onClick={() => setHideScoresheet(!hideScoresheet)}
+          >
+            {hideScoresheet === false ? 'Hide Scoresheet' : 'Show Scoresheet'}
+          </div>
+          <img
+            className={hideScoresheet === false ? '' : 'hidden'}
+            src={match.scoresheet.url}
+            alt='Scoresheet'
+          />
         </div>
       )}
 
