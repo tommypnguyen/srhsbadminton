@@ -8,14 +8,20 @@ const ResultRow = ({ result }) => {
           className='link link-hover hover:text-primary'
           to={`/players/${result.player_one.id}`}
         >
-          {result.player_one.name}
+          {result.player_one.name}{' '}
+          <div className='font-light ml-1'>
+            ({result.player_one.school.abbreviation})
+          </div>
         </Link>{' '}
         <br />{' '}
         <Link
           className='link link-hover  hover:text-primary'
           to={`/players/${result.player_two.id}`}
         >
-          {result.player_two.name}
+          {result.player_two.name}{' '}
+          <div className='font-light'>
+            ({result.player_two.school.abbreviation})
+          </div>
         </Link>
       </span>
     ) : (
@@ -23,26 +29,18 @@ const ResultRow = ({ result }) => {
         {' '}
         <Link to={`/players/${result.player_one.id}`}>
           {result.player_one.name}
+          <div className='font-light'>
+            ({result.player_one.school.abbreviation})
+          </div>
         </Link>
       </span>
     )
   return (
-    <tbody className='font-semibold'>
+    <tbody
+      className={`font-semibold ${result.winner && result.player_one.school.name === 'Santa Rosa High School' && 'bg-green-200'}`}
+    >
       <tr>
-        <th
-          className={
-            result.player_one.school === 'Santa Rosa High School'
-              ? 'text-accent/75'
-              : ''
-          }
-        >
-          {players}
-          {result.winner ? (
-            <span className='text-sm text-success truncate'> (W) </span>
-          ) : (
-            <span className='text-sm text-error/75 truncate'> (L) </span>
-          )}
-        </th>
+        <th>{players}</th>
         <td>{result.first_set}</td>
         <td>{result.second_set}</td>
         <td>{'third_set' in result ? result.third_set : ''}</td>
