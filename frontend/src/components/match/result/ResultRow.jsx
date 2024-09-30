@@ -37,7 +37,10 @@ const ResultRow = ({ result }) => {
     )
   return (
     <tbody
-      className={`font-semibold ${result.winner && result.player_one.school.name === 'Santa Rosa High School' && 'bg-green-200'}`}
+      className={
+        result.player_one.school.name === 'Santa Rosa High School' &&
+        `font-semibold ${result.winner === true ? 'bg-green-200' : 'bg-rose-300'}`
+      }
     >
       <tr>
         <th>{players}</th>
