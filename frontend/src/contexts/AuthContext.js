@@ -83,6 +83,13 @@ export const AuthProvider = ({ children }) => {
   }
 
   useEffect(() => {
+    const { user, authTokens } =
+      JSON.parse(localStorage.getItem('authTokens')) || {}
+    if (user) setUser(user)
+    if (authTokens) setAuthTokens(authTokens)
+  }, [])
+
+  useEffect(() => {
     if (loading) {
       updateToken()
     }
