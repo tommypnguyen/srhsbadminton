@@ -18,7 +18,7 @@ const Match = () => {
   const { id } = useParams()
   const [match, setMatch] = useState({})
   const [games, setGames] = useState([])
-  const [category, setCategory] = useState('MS')
+  const [category, setCategory] = useState("Men's Singles")
   const [filteredGames, setFilteredGames] = useState([])
   const [hideScoresheet, setHideScoresheet] = useState(false)
   const formatDate = (dateString) => {
@@ -59,15 +59,9 @@ const Match = () => {
   }
 
   const filterGames = (category) => {
-    if (category === '') {
-      const categoryGames = games
-      categoryGames.sort(compareGames)
-      setFilteredGames(categoryGames)
-    } else {
-      const categoryGames = games.filter((game) => game.discipline === category)
-      categoryGames.sort(compareGames)
-      setFilteredGames(categoryGames)
-    }
+    const categoryGames = games.filter((game) => game.discipline === category)
+    categoryGames.sort(compareGames)
+    setFilteredGames(categoryGames)
   }
 
   const onCategoryChange = (e) => {
@@ -81,7 +75,11 @@ const Match = () => {
       .then((response) => {
         setMatch(response.data)
         setGames(response.data.games.sort(compareGames))
-        setFilteredGames(response.data.games.sort(compareGames))
+        const categoryGames = response.data.games.filter(
+          (game) => game.discipline === category,
+        )
+        categoryGames.sort(compareGames)
+        setFilteredGames(categoryGames)
       })
       .catch((error) => {
         console.error(error)
