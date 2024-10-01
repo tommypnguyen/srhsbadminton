@@ -5,11 +5,13 @@ import axios from 'axios'
 import Select from '../layout/Select'
 import Result from '../match/result/Results'
 import Record from '../match/Record'
+import { getPlayerYears } from '../../services/player'
 const Player = () => {
   const { id } = useParams()
   const [player, setPlayer] = useState({})
   const [searchParams, setSearchParams] = useSearchParams()
   const [year, setYear] = useState('')
+  const [years, setYears] = useState([])
 
   const onYearChange = (e) => {
     setYear(e.target.value)
@@ -40,6 +42,19 @@ const Player = () => {
         console.error(error)
       })
   }, [id, searchParams])
+
+  useEffect(() => {
+    const getAsyncYears = async () => {
+      const data = await getPlayerYears(id)
+      const formattedYears = data.map((year) => ({
+        content: year,
+        value: year,
+      }))
+      setYears(formattedYears)
+    }
+    getAsyncYears()
+  }, [])
+
   if (Object.keys(player).length === 0) {
     return <div>Loading...</div>
   }
@@ -89,10 +104,7 @@ const Player = () => {
                 onChange={onYearChange}
                 description={'Filter by year'}
                 value={year}
-                options={[
-                  { value: 2024, content: 2024 },
-                  { value: 2023, content: 2023 },
-                ]}
+                options={years}
               />
 
               <button className='btn bg-primary' onClick={onResetFiltersClick}>

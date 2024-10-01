@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework import status
 
 
-from matches.models import Game, Match, Player, School, Team
+from matches.models import Game,GameResult, Match, Player, School, Team
 from matches.filters import MatchFilter, PlayerFilter
 from matches.serializers import (
     GameSerializer,
@@ -43,8 +43,9 @@ class PlayerViewSet(viewsets.ModelViewSet):
         if year:
             year_q = Q(match__date__year=year)
         instance = self.get_object()
+        game_results = GameResult.objects.filter(Q(player_one__id=instance.id) | Q(player_two__id=instance.id))
         games = Game.objects.filter(
-            id__in=instance.gameresult_set.values_list("game", flat=True)
+            id__in=game_results.values_list("game", flat=True)
         )
         games = games.filter(year_q)
 
@@ -53,6 +54,16 @@ class PlayerViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
 
         return Response(serializer.data)
+    
+    @action(detail=True, methods=["get"])
+    def years(self, request, pk):
+        games = GameResult.objects.filter(Q(player_one__id=pk) | Q(player_two__id=pk))
+        games = Game.objects.filter(
+            id__in=games.values_list("game", flat=True)
+        )
+        years = Match.objects.filter(games__id__in=games).dates("date", "year")
+        years = sorted([d.year for d in years], reverse=True)
+        return Response(data=years, status=status.HTTP_200_OK)
 
 
 class SchoolViewSet(viewsets.ModelViewSet):
