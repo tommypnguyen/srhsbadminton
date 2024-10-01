@@ -53,7 +53,7 @@ const Player = () => {
       setYears(formattedYears)
     }
     getAsyncYears()
-  }, [])
+  }, [id])
 
   if (Object.keys(player).length === 0) {
     return <div>Loading...</div>
