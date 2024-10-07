@@ -26,7 +26,7 @@ const MatchCards = () => {
       </swiper-slide>
     ))
   } else if (matchStatus === 'failed') {
-    content = <div>{error}</div>
+    content = <div>Unable to load matches, please try again...</div>
   }
 
   return (
