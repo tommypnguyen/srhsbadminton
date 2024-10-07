@@ -7,7 +7,6 @@ const MatchCards = () => {
   const dispatch = useDispatch()
   const matches = useSelector(selectAllMatches)
   const matchStatus = useSelector((state) => state.match.status)
-  const error = useSelector((state) => state.match.error)
 
   useEffect(() => {
     if (matchStatus === 'idle') {

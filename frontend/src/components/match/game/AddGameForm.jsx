@@ -145,7 +145,10 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
   useEffect(() => {
     const getAsyncPlayers = async () => {
       const players = await getPlayersByFilter(santaRosaId)
-      const playerNames = players.map((player) => player.name)
+      const playerNames = players.map((player) => ({
+        value: player.name,
+        label: player.name,
+      }))
       setPossibleHomePlayers(playerNames)
     }
     getAsyncPlayers()
@@ -154,7 +157,10 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
   useEffect(() => {
     const getAsyncPlayers = async () => {
       const players = await getPlayersByFilter(opponentId)
-      const playerNames = players.map((player) => player.name)
+      const playerNames = players.map((player) => ({
+        value: player.name,
+        label: player.name,
+      }))
       setPossibleAwayPlayers(playerNames)
     }
     getAsyncPlayers()
@@ -237,7 +243,6 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
           </label>
           <Autocomplete
             possibleValues={possibleHomePlayers}
-            inputValue={homePlayers.firstPlayer}
             setInputValue={(value) =>
               setHomePlayers({ ...homePlayers, firstPlayer: value })
             }
@@ -253,7 +258,6 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
 
               <Autocomplete
                 possibleValues={possibleHomePlayers}
-                inputValue={homePlayers.secondPlayer}
                 setInputValue={(value) =>
                   setHomePlayers({ ...homePlayers, secondPlayer: value })
                 }
