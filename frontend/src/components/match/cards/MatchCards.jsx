@@ -19,7 +19,7 @@ const MatchCards = () => {
   if (matchStatus === 'loading') {
     content = <div className='skeleton h-32 w-full bg-accent/95'></div>
   } else if (matchStatus === 'succeeded') {
-    content = matches.map((match) => (
+    content = matches.results.map((match) => (
       <swiper-slide key={match.id}>
         <MatchCardItem match={match} />
       </swiper-slide>
