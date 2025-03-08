@@ -57,6 +57,9 @@ const AddMatchForm = () => {
     } else {
       try {
         const formData = new FormData()
+        if (!scoresheet) {
+          throw new Error('Scoresheet not passed in')
+        }
         formData.append('scoresheet', scoresheet)
         formData.append('date', date.toLocaleDateString('en-CA'))
         formData.append(
@@ -87,7 +90,7 @@ const AddMatchForm = () => {
         navigate('/matches')
       } catch (err) {
         toast.error(
-          'Failed to add match. Please make sure you are logged in or all fields are filled.',
+          `Failed to add match. Please make sure you are logged in or all fields are filled. ${err}`,
           {
             position: 'top-right',
             autoClose: 5000,

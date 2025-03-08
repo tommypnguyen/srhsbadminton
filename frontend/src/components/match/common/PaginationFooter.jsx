@@ -21,7 +21,7 @@ const PaginationFooter = ({ url, previous, next, onClick, show = true }) => {
           onClick={onClick}
           className={`join-item btn btn-outline ${next === null && 'btn-disabled'}`}
         >
-          <Link to={next && `${parseLink(next)}`}>Next</Link>
+          <Link to={next && parseLink(next)}>Next</Link>
         </button>
       </div>
     )

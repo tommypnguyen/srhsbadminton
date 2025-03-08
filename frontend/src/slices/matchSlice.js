@@ -26,7 +26,7 @@ export const matchSlice = createSlice({
       })
       .addCase(fetchMatches.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.matches = action.payload.results
+        state.matches = action.payload
       })
       .addCase(fetchMatches.rejected, (state, action) => {
         state.status = 'failed'

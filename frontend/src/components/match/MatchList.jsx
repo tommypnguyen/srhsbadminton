@@ -99,7 +99,7 @@ const MatchList = () => {
   }, [])
 
   let content
-
+  let footer
   if (matchStatus === 'loading') {
     content = <div className='skeleton h-32 w-full'></div>
   } else if (matchStatus === 'succeeded') {
@@ -111,9 +111,17 @@ const MatchList = () => {
         />
       )
     } else {
-      content = matches.map((match) => (
+      content = matches.results.map((match) => (
         <MatchListItem match={match} key={match.id} />
       ))
+      footer = (
+        <PaginationFooter
+          url={'/matches/'}
+          previous={matches.previous}
+          next={matches.next}
+          onClick={onPaginationClick}
+        />
+      )
     }
   } else if (matchStatus === 'failed') {
     content = <Error message={error} />
@@ -176,12 +184,7 @@ const MatchList = () => {
         <ul className=' divide-y divide-gray-400 dark:divide-gray-700 p-4'>
           {content}
         </ul>
-        <PaginationFooter
-          url={'/matches/'}
-          previous={matches.previous}
-          next={matches.next}
-          onClick={onPaginationClick}
-        />
+        {footer}
       </div>
     </>
   )
