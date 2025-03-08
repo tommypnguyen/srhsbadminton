@@ -33,7 +33,7 @@ export const matchSlice = createSlice({
         state.error = action.error.message
       })
       .addCase(deleteMatch.fulfilled, (state, action) => {
-        state.matches = state.matches.results.filter(
+        state.matches.results = state.matches.results.filter(
           (match) => match.id !== parseInt(action.payload),
         )
         state.recordStatus = 'idle'
