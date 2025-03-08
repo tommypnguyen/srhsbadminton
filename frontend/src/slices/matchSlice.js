@@ -33,13 +33,13 @@ export const matchSlice = createSlice({
         state.error = action.error.message
       })
       .addCase(deleteMatch.fulfilled, (state, action) => {
-        state.matches = state.matches.filter(
+        state.matches = state.matches.results.filter(
           (match) => match.id !== parseInt(action.payload),
         )
         state.recordStatus = 'idle'
       })
       .addCase(updateMatch.fulfilled, (state, action) => {
-        let newMatches = state.matches.map((match) =>
+        let newMatches = state.matches.results.map((match) =>
           match.id !== action.payload.id ? match : action.payload,
         )
         newMatches.sort((a, b) => {
@@ -49,16 +49,16 @@ export const matchSlice = createSlice({
         state.recordStatus = 'idle'
       })
       .addCase(addNewMatch.fulfilled, (state, action) => {
-        state.matches.push(action.payload)
-        let newMatches = [...state.matches]
+        state.matches.results.push(action.payload)
+        let newMatches = [...state.matches.results]
         newMatches.sort((a, b) => {
           return new Date(b.date) - new Date(a.date)
         })
-        state.matches = newMatches
+        state.matches.results = newMatches
         state.recordStatus = 'idle'
       })
       .addCase(addNewGame.fulfilled, (state, action) => {
-        const newMatches = state.matches.map((match) => {
+        const newMatches = state.matches.results.map((match) => {
           if (match.id === action.payload.match_id) {
             console.log('updating games')
             return {
