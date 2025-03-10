@@ -61,7 +61,7 @@ const AddMatchForm = () => {
           throw new Error('Scoresheet not passed in')
         }
         formData.append('scoresheet', scoresheet)
-        formData.append('date', date.toString())
+        formData.append('date', date.toISOString().split('T')[0])
         formData.append(
           'teams',
           JSON.stringify([

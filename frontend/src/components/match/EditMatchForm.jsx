@@ -46,7 +46,7 @@ const EditMatchForm = ({ match }) => {
         setEditRequestStatus('pending')
         const formData = new FormData()
         scoresheet instanceof File && formData.append('scoresheet', scoresheet)
-        formData.append('date', date.toString())
+        formData.append('date', date.toISOString().split('T')[0])
         formData.append(
           'teams',
           JSON.stringify([
