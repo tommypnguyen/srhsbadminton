@@ -2,8 +2,7 @@ import { Link } from 'react-router-dom'
 
 const MatchListItem = ({ match }) => {
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' }
-    return new Date(dateString).toLocaleDateString(undefined, options)
+    return new Date(dateString).toISOString().split('T')[0]
   }
   return (
     <li className='py-5'>
