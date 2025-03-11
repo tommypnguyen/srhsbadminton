@@ -1,6 +1,6 @@
 import CreatableSelect from 'react-select/creatable'
 
-const Autocomplete = ({ possibleValues, setInputValue }) => {
+const Autocomplete = ({ possibleValues, setInputValue, inputValue }) => {
   const handleSuggestionClick = (value) => {
     setInputValue(value.value)
   }
@@ -9,6 +9,7 @@ const Autocomplete = ({ possibleValues, setInputValue }) => {
     <div>
       <CreatableSelect
         onChange={handleSuggestionClick}
+        defaultInputValue={inputValue}
         options={possibleValues}
       />
     </div>

@@ -302,15 +302,11 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
       <div className='divider divider-start'>Scores</div>
       <div className='flex flex-wrap -mx-3 mb-6'>
         <div className='w-1/2 px-3'>
-          <label
-            className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'
-            htmlFor='grid-password'
-          >
+          <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>
             SRHS 1st set
           </label>
           <input
             className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-            id='grid-password'
             type='number'
             value={firstSet.homeScore}
             onChange={(e) =>
@@ -322,15 +318,11 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
           />
         </div>
         <div className='w-1/2 px-3'>
-          <label
-            className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'
-            htmlFor='grid-password'
-          >
+          <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>
             Opponent 1st set
           </label>
           <input
             className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-            id='grid-password'
             type='number'
             value={firstSet.awayScore}
             onChange={(e) =>
@@ -342,15 +334,11 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
           />
         </div>
         <div className='w-1/2 px-3'>
-          <label
-            className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'
-            htmlFor='grid-password'
-          >
+          <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>
             2nd set
           </label>
           <input
             className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-            id='grid-password'
             type='number'
             value={secondSet.homeScore}
             onChange={(e) =>
@@ -362,15 +350,11 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
           />
         </div>
         <div className='w-1/2 px-3'>
-          <label
-            className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'
-            htmlFor='grid-password'
-          >
+          <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>
             2nd set
           </label>
           <input
             className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-            id='grid-password'
             type='number'
             value={secondSet.awayScore}
             onChange={(e) =>
@@ -384,15 +368,11 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
         {showThirdSet ? (
           <>
             <div className='w-1/2 px-3'>
-              <label
-                className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'
-                htmlFor='grid-password'
-              >
+              <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>
                 3rd set
               </label>
               <input
                 className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-                id='grid-password'
                 type='number'
                 value={thirdSet.homeScore}
                 onChange={(e) =>
@@ -404,15 +384,11 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
               />
             </div>
             <div className='w-1/2 px-3'>
-              <label
-                className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'
-                htmlFor='grid-password'
-              >
+              <label className='block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2'>
                 3rd set
               </label>
               <input
                 className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
-                id='grid-password'
                 type='number'
                 value={thirdSet.awayScore}
                 onChange={(e) =>
@@ -447,7 +423,6 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
       <fieldset className='flex flex-wrap -mx-3 mb-6'>
         <div className='w-1/3 px-3'>
           <input
-            id='santa-rosa-win'
             name='winner'
             type='radio'
             className='h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600'
@@ -463,7 +438,6 @@ const AddGameForm = ({ matchId, santaRosaId, opponentId }) => {
         </div>
         <div className='w-1/3 px-3'>
           <input
-            id='opponent-win'
             name='winner'
             type='radio'
             checked={!srhsWin}

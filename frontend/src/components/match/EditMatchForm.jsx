@@ -135,7 +135,6 @@ const EditMatchForm = ({ match }) => {
                 <div className='mt-6 space-y-6'>
                   <div className='flex items-center gap-x-3'>
                     <input
-                      id='santa-rosa-win'
                       name='winner'
                       type='radio'
                       className='h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600'
@@ -151,7 +150,6 @@ const EditMatchForm = ({ match }) => {
                   </div>
                   <div className='flex items-center gap-x-3'>
                     <input
-                      id='opponent-win'
                       name='winner'
                       type='radio'
                       onChange={() => setHomeWin(false)}
