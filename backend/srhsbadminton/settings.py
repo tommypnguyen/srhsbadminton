@@ -75,7 +75,6 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 
-CORS_ALLOW_CREDENTIALS = True
 
 
 MIDDLEWARE = [
@@ -210,4 +209,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ORIGIN_WHITELIST = os.getenv("CORS_ALLOWED_ORIGINS").split(",")
 
-CORS_ALLOW_ALL_ORIGNS=True
